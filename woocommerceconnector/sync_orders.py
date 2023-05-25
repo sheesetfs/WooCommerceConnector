@@ -6,7 +6,7 @@ from .exceptions import woocommerceError
 from .utils import make_woocommerce_log
 from .sync_customers import create_customer, create_customer_address, create_customer_contact
 from frappe.utils import flt, nowdate, cint
-from .woocommerce_requests import get_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
+from .woocommerce_requests import get_request, get_country, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note, make_sales_invoice
 import requests.exceptions
 import base64, requests, datetime, os
@@ -247,12 +247,10 @@ def get_customer_address_from_order(type, woocommerce_order, customer):
     address_record = woocommerce_order[type.lower()]
     address_name = frappe.db.get_value("Address", {"woocommerce_address_id": type, "address_line1": address_record.get("address_1"), "woocommerce_company_name": address_record.get("company") or ''}, "name")
     if not address_name:
-        country = address_record.get('country')
-        if country == None:
-            country = "Qatar"
-        country = get_country_name(address_record.get("country"))
+        country = get_country()
         if not frappe.db.exists("Country", country):
-            country = "Switzerland"
+            woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
+            country = frappe.db.get_value('Company',woocommerce_settings.company,'country') #use default company country 
         try :
             address_name = frappe.get_doc({
                 "doctype": "Address",
