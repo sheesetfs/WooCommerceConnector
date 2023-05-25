@@ -58,6 +58,7 @@ def make_item(warehouse, woocommerce_item, woocommerce_item_list):
     except frappe.exceptions.DuplicateEntryError:
         #catch already existing error 
         #dont create the item
+        frappe.log_error('make_item_duplicate_error',woocommerce_item['id'])
         return
         
 def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None, variant_of=None, woocommerce_item_list=[], template_item=None):
@@ -66,6 +67,7 @@ def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None, var
     weight_unit =  woocommerce_settings.get("weight_unit")
     
     item_code = get_item_code(woocommerce_item, woocommerce_settings)
+    
 
     item_dict = {
         "doctype": "Item",
@@ -461,7 +463,7 @@ def get_erpnext_items(price_list):
           AND `tabItem`.`name` = `tabItem Price`.`item_code`
           AND `tabItem`.`sync_with_woocommerce` = 1 
           AND (`tabItem`.`disabled` IS NULL OR `tabItem`.`disabled` = 0) %s""" %(price_list, item_price_condition)
-    frappe.log_error("{0}".format(item_from_item_price))
+    frappe.log_error("item_list","{0}".format(item_from_item_price))
 
 
 

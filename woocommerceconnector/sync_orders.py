@@ -6,7 +6,7 @@ from .exceptions import woocommerceError
 from .utils import make_woocommerce_log
 from .sync_customers import create_customer, create_customer_address, create_customer_contact
 from frappe.utils import flt, nowdate, cint
-from .woocommerce_requests import get_request, get_country, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
+from .woocommerce_requests import get_request, get_country, get_request_request, get_woocommerce_orders, get_woocommerce_tax, get_woocommerce_customer, put_request
 from erpnext.selling.doctype.sales_order.sales_order import make_delivery_note, make_sales_invoice
 import requests.exceptions
 import base64, requests, datetime, os
@@ -70,7 +70,19 @@ def valid_customer_and_product(woocommerce_order):
 	# new function item based on product id
     for item in woocommerce_order.get("line_items"):
         if item.get("product_id"):
-            if not frappe.db.get_value("Item", {"woocommerce_product_id": item.get("product_id")}, "item_code"):
+            if not frappe.db.get_value("Item", item.get("product_id"), "item_code"):
+                #create the item in erpnext
+                #get_product_from_woocommerce and create on erpnext
+                from .sync_products import make_item
+                url = "products/" + str(item.get('product_id'))
+                woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
+                
+                resp = get_request_request(url)
+                frappe.log_error('resp',resp)
+                if resp.status_code == 200:
+                    product_data = resp.json()
+                    warehouse = woocommerce_settings.warehouse
+                    make_item(warehouse,product_data,[])
                 make_woocommerce_log(title="Item missing in ERPNext!", status="Error", method="valid_customer_and_product", message="Item with id {0} is missing in ERPNext! The Order {1} will not be imported! For details of order see below".format(item.get("product_id"), woocommerce_order.get("id")),
                     request_data=woocommerce_order, exception=True)
                 return False
