@@ -217,6 +217,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
             "customer": customer,
             "customer_group": woocommerce_settings.customer_group,  # hard code group, as this was missing since v12
             "delivery_date": nowdate(),
+            "transaction_date":woocommerce_order.get("date_created")[:10],
             "company": woocommerce_settings.company,
             "selling_price_list": woocommerce_settings.price_list,
             "ignore_pricing_rule": 1,
