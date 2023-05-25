@@ -231,9 +231,8 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
             "shipping_address_name": shipping_address,
             "posting_date": woocommerce_order.get("date_created")[:10]          # pull posting date from WooCommerce
         })
-
         so.flags.ignore_mandatory = True
-
+        so.payment_schedule = []
         # alle orders in ERP = submitted
         so.save(ignore_permissions=True)
         so.submit()
@@ -268,7 +267,7 @@ def get_customer_address_from_order(type, woocommerce_order, customer):
                 "doctype": "Address",
                 "woocommerce_address_id": type,
                 "woocommerce_company_name": address_record.get("company") or '',
-                "address_title": customer,
+                "address_title": customer.replace('@',''),
                 "address_type": type,
                 "address_line1": address_record.get("address_1") or "Address 1",
                 "address_line2": address_record.get("address_2"),
