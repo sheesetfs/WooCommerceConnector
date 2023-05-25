@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _
 import requests.exceptions
-from .woocommerce_requests import get_woocommerce_customers, post_request, put_request
+from .woocommerce_requests import get_country, get_woocommerce_customers, post_request, put_request
 from .utils import make_woocommerce_log
 
 def sync_customers():
@@ -104,13 +104,11 @@ def create_customer_address(customer, woocommerce_customer):
                     request_data=woocommerce_customer, exception=True)
 
     if shipping_address:
-        country = shipping_address.get("country", "Qatar")
-        if country == None:
-            country = "Qatar"
-        country = get_country_name(country)
-        
+        country = get_country()
         if not frappe.db.exists("Country", country):
-            country = "Switzerland"
+            woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
+            country = frappe.db.get_value('Company',woocommerce_settings.company,'country') #use default company country 
+
         try :
             frappe.get_doc({
                 "doctype": "Address",

@@ -161,7 +161,18 @@ def get_filtering_condition():
 
 
 def get_country():
-    return get_request('/admin/countries.json')['countries']
+    #get default country
+    res = get_request_request('settings/general/woocommerce_default_country')
+    if res.status_code == 200:
+        country_value = res.json()['value'].split(':')[0].lower() #example value 'QA:QA-BIMH'
+        #use value to get country name
+        
+        url = 'data/countries/' + country_value
+        _res = get_request_request(url)
+        if _res.status_code == 200:
+            country_name = _res.json()['name']
+            return country_name
+    return ''
 
 def get_woocommerce_items(ignore_filter_conditions=False):
     woocommerce_products = []
