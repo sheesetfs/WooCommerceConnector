@@ -58,7 +58,7 @@ def make_item(warehouse, woocommerce_item, woocommerce_item_list):
     except frappe.exceptions.DuplicateEntryError:
         #catch already existing error 
         #dont create the item
-        frappe.log_error('make_item_duplicate_error',woocommerce_item['id'])
+        # frappe.log_error('make_item_duplicate_error',woocommerce_item['id'])
         return
         
 def create_item(woocommerce_item, warehouse, has_variant=0, attributes=None, variant_of=None, woocommerce_item_list=[], template_item=None):
