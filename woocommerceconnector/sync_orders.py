@@ -235,8 +235,11 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
         so.flags.ignore_mandatory = True
         so.payment_schedule = []
         # alle orders in ERP = submitted
-        so.save(ignore_permissions=True)
-        so.submit()
+        try:
+            so.save(ignore_permissions=True)
+            so.submit()
+        except frappe.exceptions.DoesNotExistError :
+            return
         #if woocommerce_order.get("status") == "on-hold":
         #    so.save(ignore_permissions=True)
         #elif woocommerce_order.get("status") in ("cancelled", "refunded", "failed"):
