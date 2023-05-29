@@ -71,7 +71,7 @@ def valid_customer_and_product(woocommerce_order):
 			
 	# new function item based on product id
     for item in woocommerce_order.get("line_items"):
-        frappe.log_error("line_items",json.dumps(woocommerce_order.get("line_items")))
+        # frappe.log_error("line_items",json.dumps(woocommerce_order.get("line_items")))
         if item.get("product_id"):
             if not frappe.db.get_value("Item", item.get("product_id"), "item_code"):
                 #create the item in erpnext
@@ -198,6 +198,7 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 
     so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
     if not so:
+        frappe.log_error('create_sales_order','create_sales_order')
         # get shipping/billing address
         shipping_address = get_customer_address_from_order('Shipping', woocommerce_order, customer)
         billing_address = get_customer_address_from_order('Billing', woocommerce_order, customer)
