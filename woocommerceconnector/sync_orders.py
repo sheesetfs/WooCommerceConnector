@@ -71,7 +71,7 @@ def valid_customer_and_product(woocommerce_order):
 			
 	# new function item based on product id
     for item in woocommerce_order.get("line_items"):
-        frappe.log_error("line_items",woocommerce_order.get("line_items"))
+        frappe.log_error("line_items",json.dumps(woocommerce_order.get("line_items")))
         if item.get("product_id"):
             if not frappe.db.get_value("Item", item.get("product_id"), "item_code"):
                 #create the item in erpnext
