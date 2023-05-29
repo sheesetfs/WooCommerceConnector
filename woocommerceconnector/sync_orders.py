@@ -198,7 +198,6 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
 
     so = frappe.db.get_value("Sales Order", {"woocommerce_order_id": woocommerce_order.get("id")}, "name")
     if not so:
-        frappe.log_error('create_sales_order','create_sales_order')
         # get shipping/billing address
         shipping_address = get_customer_address_from_order('Shipping', woocommerce_order, customer)
         billing_address = get_customer_address_from_order('Billing', woocommerce_order, customer)
