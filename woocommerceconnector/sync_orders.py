@@ -71,6 +71,7 @@ def valid_customer_and_product(woocommerce_order):
 			
 	# new function item based on product id
     for item in woocommerce_order.get("line_items"):
+        frappe.log_error("line_items",woocommerce_order.get("line_items"))
         if item.get("product_id"):
             if not frappe.db.get_value("Item", item.get("product_id"), "item_code"):
                 #create the item in erpnext
@@ -80,7 +81,6 @@ def valid_customer_and_product(woocommerce_order):
                 woocommerce_settings = frappe.get_doc("WooCommerce Config", "WooCommerce Config")
                 
                 resp = get_request_request(url)
-                frappe.log_error('resp',resp)
                 if resp.status_code == 200:
                     product_data = resp.json()
                     warehouse = woocommerce_settings.warehouse
@@ -361,7 +361,10 @@ def get_item_code(woocommerce_item):
     else:
         # single
         item_code = frappe.db.get_value("Item", {"woocommerce_product_id": woocommerce_item.get("product_id")}, "item_code")
-
+    #get item_code with product_id if none
+    if not item_code:
+        item_code = frappe.db.get_value("Item", woocommerce_item.get("product_id"), "item_code")
+        
     return item_code
 
 def get_order_taxes(woocommerce_order, woocommerce_settings):
@@ -447,17 +450,18 @@ def get_tax_account_head(tax):
     return tax_account
 
 def close_synced_woocommerce_orders():
-    for woocommerce_order in get_woocommerce_orders():
-        if woocommerce_order.get("status").lower() != "cancelled":
-            order_data = {
-                "status": "completed"
-            }
-            try:
-                put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
+    pass
+    # for woocommerce_order in get_woocommerce_orders():
+    #     if woocommerce_order.get("status").lower() != "cancelled":
+    #         order_data = {
+    #             "status": "completed"
+    #         }
+    #         try:
+    #             put_request("orders/{0}".format(woocommerce_order.get("id")), order_data)
                     
-            except requests.exceptions.HTTPError as e:
-                make_woocommerce_log(title=e, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
-                    request_data=woocommerce_order, exception=True)
+    #         except requests.exceptions.HTTPError as e:
+    #             make_woocommerce_log(title=e, status="Error", method="close_synced_woocommerce_orders", message=frappe.get_traceback(),
+    #                 request_data=woocommerce_order, exception=True)
 
 def close_synced_woocommerce_order(wooid):
     pass
