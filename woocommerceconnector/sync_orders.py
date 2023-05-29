@@ -34,6 +34,8 @@ def sync_woocommerce_orders():
                     except woocommerceError as e:
                         make_woocommerce_log(status="Error", method="sync_woocommerce_orders", message=frappe.get_traceback(),
                             request_data=woocommerce_order, exception=True)
+                    except frappe.exceptions.DoesNotExistError:
+                        continue
                     except Exception as e:
                         if e.args and e.args[0] and e.args[0].decode("utf-8").startswith("402"):
                             raise e
@@ -235,11 +237,9 @@ def create_sales_order(woocommerce_order, woocommerce_settings, company=None):
         so.flags.ignore_mandatory = True
         so.payment_schedule = []
         # alle orders in ERP = submitted
-        try:
-            so.save(ignore_permissions=True)
-            so.submit()
-        except frappe.exceptions.DoesNotExistError :
-            return
+        
+        so.save(ignore_permissions=True)
+        so.submit()
         #if woocommerce_order.get("status") == "on-hold":
         #    so.save(ignore_permissions=True)
         #elif woocommerce_order.get("status") in ("cancelled", "refunded", "failed"):
